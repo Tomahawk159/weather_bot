@@ -1,0 +1,5 @@
+venv
+.env
+.flake8
+.vscode/
+__pycache__/
