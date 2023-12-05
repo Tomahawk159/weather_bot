@@ -1,18 +1,12 @@
 import json
 
-from environs import Env
 import requests
 
-
-env = Env()
-env.read_env()
-
-geocoder_key = env('API_KEY_GEOCODER')
-weather_key = env('API_KEY_WEATHER')
+from settings import api_config
 
 
 def get_city_coord(city):
-    payload = {'geocode': city, 'apikey': geocoder_key, 'format': 'json'}
+    payload = {'geocode': city, 'apikey': api_config.geocoder_key, 'format': 'json'}
     r = requests.get('https://geocode-maps.yandex.ru/1.x', params=payload)
     geo = json.loads(r.text)
     return geo['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
@@ -21,6 +15,10 @@ def get_city_coord(city):
 def get_weather(city):
     coordinates = get_city_coord(city).split()
     payload = {'lat': coordinates[1], 'lon': coordinates[0], 'lang': 'ru_RU'}
-    r = requests.get('https://api.weather.yandex.ru/v2/forecast', params=payload, headers=weather_key)
+    r = requests.get('https://api.weather.yandex.ru/v2/forecast', params=payload,
+                     headers={'X-Yandex-API-Key': api_config.weather_key})
     weather_data = json.loads(r.text)
-    return weather_data
+    return weather_data['fact']
+
+
+print(get_weather('Калининград'))
