@@ -1,46 +1,36 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
+from datetime import datetime
+
+
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship
 
 
 Base = declarative_base()
 
 
-class Book(Base):
-    __tablename__ = 'books'
-    id = Column(Integer, primary_key=True)
-    title = Column(String(60), nullable=False)
-    author = Column(String(30), nullable=False)
-    reviews = relationship('Reviews', backref='book', lazy=True)
-
-    def __repr__(self):
-        return self.title
-
-
-class Reviews(Base):
-    __tablename__ = 'reviews'
-    id = Column(Integer, primary_key=True)
-    text = Column(String(2000), nullable=False)
-    book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-
-    def __repr__(self):
-        return f'От {self.reviewer}'
-
-
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'Users'
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
-    reviews = relationship('Reviews', backref='reviewer', lazy=True)
+    connection_date = Column(DateTime, default=datetime.now, nullable=False)
+    tg_id = Column(BigInteger, nullable=False)
+    city = Column(String)
+    reports = relationship('WeatherReport', backref='report', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return self.name
+        return self.tg_id
 
 
-engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=True)
+class WeatherReport(Base):
+    __tablename__ = 'WeatherReports'
+    id = Column(Integer, primary_key=True)
+    owner = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    date = Column(DateTime, default=datetime.now, nullable=False)
+    temp = Column(Integer, nullable=False)
+    feels_like = Column(Integer, nullable=False)
+    wind_speed = Column(Integer, nullable=False)
+    pressure_mm = Column(Integer, nullable=False)
+    city = Column(String, nullable=False)
 
-Base.metadata.create_all(engine)
-
-Session = sessionmaker(bind=engine)
-session = Session()
+    def __repr__(self):
+        return self.city

@@ -6,3 +6,4 @@ env.read_env()
 
 geocoder_key = env('API_KEY_GEOCODER')
 weather_key = env('API_KEY_WEATHER')
+bot_token = env('BOT_TOKEN')

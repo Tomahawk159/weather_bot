@@ -19,6 +19,3 @@ def get_weather(city):
                      headers={'X-Yandex-API-Key': api_config.weather_key})
     weather_data = json.loads(r.text)
     return weather_data['fact']
-
-
-print(get_weather('Калининград'))
